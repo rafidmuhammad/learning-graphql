@@ -1,15 +1,24 @@
-var express = require("express")
-var { graphqlHTTP } = require("express-graphql")
-var { buildSchema } = require("graphql")
+const express = require("express")
+const { graphqlHTTP } = require("express-graphql")
+const { buildSchema } = require("graphql")
+const RandomDie = require('./randomDie.js');
 
 // Construct a schema, using GraphQL schema language
 var schema = buildSchema(`
+  type RandomDie{
+    numSides : Int!
+    rollOnce : Int!
+    roll(numRolls : Int!) : [Int]
+  }
+
+
   type Query {
     quoteOfTheDay : String
     random : Float!
     rollThreeDice: [Int]
     hello: String
     rollDice(numDice: Int!, numSides: Int) : [Int]
+    getDie(numSides : Int) : RandomDie
   }
 `)
 
@@ -30,7 +39,10 @@ var root = {
         
     }
     return output
-  } 
+  }, 
+  getDie: ({numSides}) => {
+    return new RandomDie(numSides || 6);
+  },
 }
 
 var app = express()
